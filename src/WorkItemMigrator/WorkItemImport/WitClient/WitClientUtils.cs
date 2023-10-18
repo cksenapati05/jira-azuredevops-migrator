@@ -11,6 +11,7 @@ using System.Linq;
 using System.Text.RegularExpressions;
 using System.Web;
 using WorkItemImport.WitClient;
+using static WorkItemImport.ExecutionPlan;
 
 namespace WorkItemImport
 {
@@ -968,6 +969,46 @@ namespace WorkItemImport
         private int GetRelatedWorkItemIdFromLink(WorkItemRelation link)
         {
             return int.Parse(link.Url.Split('/').Last());
+        }
+
+        public bool LinkSinglePullRequest(WiPullRequest pullRequest, int workItemId)
+        {
+            var workItemFromAdo = GetWorkItem(workItemId);
+            if (workItemFromAdo.Relations.OfType<WorkItemRelation>().Count(rl => rl.Url == pullRequest.url.ToString()) > 0)
+            {
+                return true;
+            }
+
+            // Create a patch document for a new work item.
+            // Specify a relation to the GitHub PullRequest.
+            JsonPatchDocument linkPatchDocument = new JsonPatchDocument
+            {
+                new JsonPatchOperation()
+                {
+                    Operation = Operation.Add,
+                    Path = "/relations/-",
+                    Value = new
+                    {
+                        rel = "ArtifactLink",
+                        url = pullRequest.url.ToString(),
+                        attributes = new
+                        {
+                            authorizedDate = pullRequest.lastUpdate,
+                            name =  "GitHub Pull Request"
+                        }
+                    }
+                }
+            };
+
+            try
+            {
+                _witClientWrapper.UpdateWorkItem(linkPatchDocument, workItemId);
+                Logger.Log(LogLevel.Info, $"Updated new work item Id:{workItemId} with link to PullRequest '{pullRequest.url}' ");
+                return true;
+            }
+            catch (Exception ex) { 
+                throw new MissingFieldException($"Work item ID was null: {workItemId}");
+            }
         }
     }
 }

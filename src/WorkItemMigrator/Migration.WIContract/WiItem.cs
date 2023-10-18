@@ -9,6 +9,8 @@ namespace Migration.WIContract
         public int WiId { get; set; } = -1;
         public List<WiRevision> Revisions { get; set; }
 
+        public List<WiPullRequest> PullRequests { get; set; }
+
         public override string ToString()
         {
             return $"[{Type}]{OriginId}/{WiId}";

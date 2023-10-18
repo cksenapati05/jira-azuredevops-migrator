@@ -588,6 +588,29 @@ namespace WorkItemImport
 
             return success;
         }
+
+        public bool LinkPullRequests(List<WiPullRequest> pullRequests, int workItemId)
+        {
+            bool success = true;
+
+            foreach (var pr in pullRequests)
+            {
+                try
+                {
+                    if (!_witClientUtils.LinkSinglePullRequest(pr, workItemId))
+                    {
+                        success = false;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Logger.Log(ex, $"Failed to link PullRequest '{ pr.url }' for '{workItemId}'.");
+                    success = false;
+                }
+            }
+
+            return success;
+        }
         #endregion
     }
 }

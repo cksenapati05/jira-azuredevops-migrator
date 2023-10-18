@@ -140,6 +140,8 @@ namespace WorkItemImport
                         agent.ImportRevision(executionItem.Revision, wi, settings);
                         importedItems++;
 
+                        agent.LinkPullRequests(executionItem.PullRequests, (int)wi.Id);
+
                         // Artifical wait (optional) to avoid throttling for ADO Services
                         if (config.SleepTimeBetweenRevisionImportMilliseconds > 0)
                         {

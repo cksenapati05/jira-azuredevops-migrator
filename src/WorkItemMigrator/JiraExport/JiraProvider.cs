@@ -317,8 +317,10 @@ namespace JiraExport
             {
                 var response =
                     _jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"{JiraApiV2}/issue/{key}?expand=renderedFields").Result;
-
                 var remoteItem = (JObject)response;
+
+                var pullRequests = GetPullRequests((string)remoteItem.SelectToken("$.id"));
+                remoteItem["pullRequests"] = new JArray(pullRequests);
                 return remoteItem;
             }
             catch (Exception e)
@@ -449,8 +451,14 @@ namespace JiraExport
 
         public IEnumerable<JObject> GetCommitRepositories(string issueId)
         {
-            var response = (JObject)_jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"/rest/dev-status/latest/issue/detail?issueId={issueId}&applicationType=stash&dataType=repository").Result;
+            var response = (JObject)_jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"/rest/dev-status/latest/issue/detail?issueId={issueId}&applicationType=GitHub&dataType=repository").Result;
             return response.SelectTokens("$.detail[*].repositories[*]").Cast<JObject>();
+        }
+
+        public IEnumerable<JObject> GetPullRequests(string issueId)
+        {
+            var response = (JObject)_jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"/rest/dev-status/latest/issue/detail?issueId={issueId}&applicationType=GitHub&dataType=branch").Result;
+            return response.SelectTokens("$.detail[*].pullRequests[*]").Cast<JObject>();
         }
     }
 }

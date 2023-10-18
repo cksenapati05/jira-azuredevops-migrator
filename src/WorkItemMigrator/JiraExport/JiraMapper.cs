@@ -46,6 +46,7 @@ namespace JiraExport
                     wiItem.OriginId = issue.Key;
                     wiItem.Type = type;
                     wiItem.Revisions = revisions;
+                    wiItem.PullRequests = issue.PullRequests.Select(p => new WiPullRequest() { url = p.url, lastUpdate = p.lastUpdate }).ToList();
                 }
                 else
                 {
@@ -390,7 +391,7 @@ namespace JiraExport
                     {
                         return (true, (T)value);
                     }
-                }
+                } 
                 else if (r.Fields.TryGetValue(customFieldName.ToLower(), out value))
                 {
                     if (mapperFunc != null)

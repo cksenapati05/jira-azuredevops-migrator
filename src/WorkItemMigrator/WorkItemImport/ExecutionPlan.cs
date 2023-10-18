@@ -11,6 +11,7 @@ namespace WorkItemImport
             public string OriginId { get; set; }
             public int WiId { get; set; } = -1;
             public WiRevision Revision { get; set; }
+            public List<WiPullRequest> PullRequests { get; set; }
             public string WiType { get; internal set; }
 
             public override string ToString()
@@ -34,7 +35,7 @@ namespace WorkItemImport
             var item = _context.GetItem(revRef.OriginId);
             var rev = item.Revisions[revRef.RevIndex];
             rev.Time = revRef.Time;
-            return new ExecutionItem() { OriginId = item.OriginId, WiId = item.WiId, WiType = item.Type, Revision = rev };
+            return new ExecutionItem() { OriginId = item.OriginId, WiId = item.WiId, WiType = item.Type, Revision = rev, PullRequests = item.PullRequests };
         }
 
         public bool TryPop(out ExecutionItem nextItem)

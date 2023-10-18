@@ -35,7 +35,7 @@ namespace JiraExport
             string issueKey = jiraItem.Key;
             var remoteIssue = jiraItem.RemoteIssue;
             Dictionary<string, object> fieldsTemp = ExtractFields(issueKey, remoteIssue, jiraProvider);
-
+            
             // Add CustomFieldName fields, copy over all non-custom fields.
             // These get removed as we loop over the changeLog, so we're left with the original Jira values by the time we reach firstRevision.
             Dictionary<string, object> fields = new Dictionary<string, object>(StringComparer.InvariantCultureIgnoreCase);
@@ -587,10 +587,22 @@ namespace JiraExport
 
         public JObject RemoteIssue { get; private set; }
         public List<JiraRevision> Revisions { get; set; }
+        public List<PullRequest> PullRequests { get; set; }
         private JiraItem(IJiraProvider provider, JObject remoteIssue)
         {
             this._provider = provider;
             RemoteIssue = remoteIssue;
+
+            var Prs = new List<PullRequest>();
+            foreach (var pr in remoteIssue.SelectTokens("$.pullRequests[*]").Cast<JObject>())
+            {
+                var url = pr.ExValue<string>("$.url");
+                var lastUpdate = pr.ExValue<DateTime>("$.lastUpdate");
+
+                var Pr = new PullRequest() { url = new Uri(url), lastUpdate = lastUpdate };
+                Prs.Add(Pr);
+            }
+            this.PullRequests = Prs;
         }
         internal string GetUserEmail(string author)
         {
