@@ -57,7 +57,7 @@ namespace WorkItemImport.WitClient
                 Value = new PatchOperationValue
                 {
                     Rel = "ArtifactLink",
-                    Url = $"vstfs:///Git/Commit/{project}/{repository}/{commitId}",
+                    Url = $"vstfs:///Git/Commit/{repository}/{commitId}",
                     Attributes = new Attributes
                     {
                         Name = "Fixed in Commit"
