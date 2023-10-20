@@ -592,6 +592,11 @@ namespace WorkItemImport
         public bool LinkPullRequests(List<WiPullRequest> pullRequests, int workItemId)
         {
             bool success = true;
+            if (pullRequests is null)
+            {
+                Logger.Log(LogLevel.Info, "No pullrequests linked to this workitem.");
+                return success;
+            }
 
             foreach (var pr in pullRequests)
             {
