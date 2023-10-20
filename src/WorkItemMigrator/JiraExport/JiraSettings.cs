@@ -17,6 +17,8 @@ namespace JiraExport
         public string JQL { get; set; }
         public bool UsingJiraCloud { get; set; }
         public bool IncludeCommits { get; set; }
+        public bool IncludePullRequests { get; set; }
+
         public RepositoryMap RepositoryMap { get; set; }
 
         public JiraSettings(string userID, string pass, string url, string project)

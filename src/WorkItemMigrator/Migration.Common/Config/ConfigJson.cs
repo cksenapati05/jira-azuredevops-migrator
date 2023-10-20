@@ -78,6 +78,9 @@ namespace Common.Config
         [JsonProperty(PropertyName = "include-commits")]
         public bool IncludeCommits { get; set; } = true;
 
+        [JsonProperty(PropertyName = "include-pullrequests")]
+        public bool IncludePullRequests { get; set; } = true;
+
         [JsonProperty(PropertyName = "include-jira-css-styles")]
         public bool IncludeJiraCssStyles { get; set; } = true;
 

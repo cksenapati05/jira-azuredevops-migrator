@@ -1,5 +1,7 @@
-﻿using Microsoft.VisualStudio.Services.WebApi.Patch;
+﻿using Microsoft.TeamFoundation.Common;
+using Microsoft.VisualStudio.Services.WebApi.Patch;
 using Microsoft.VisualStudio.Services.WebApi.Patch.Json;
+using Migration.WIContract;
 using System;
 
 namespace WorkItemImport.WitClient
@@ -61,6 +63,39 @@ namespace WorkItemImport.WitClient
                     Attributes = new Attributes
                     {
                         Name = "Fixed in Commit"
+                    }
+                }
+            };
+        }
+
+        public static JsonPatchOperation CreateGitHubPullRequestLinkPatchOp(Operation op, WiPullRequest pullRequest)
+        {
+            if (pullRequest is null)
+            {
+                throw new ArgumentException(nameof(pullRequest));
+            }
+
+            if (string.IsNullOrEmpty(pullRequest.PullRequestId))
+            {
+                throw new ArgumentException(nameof(pullRequest.PullRequestId));
+            }
+
+            if (string.IsNullOrEmpty(pullRequest.RepositoryId))
+            {
+                throw new ArgumentException(nameof(pullRequest.RepositoryId));
+            }
+
+            return new JsonPatchOperation()
+            {
+                Operation = op,
+                Path = "/relations/-",
+                Value = new PatchOperationValue
+                {
+                    Rel = "ArtifactLink",
+                    Url = $"vstfs:///GitHub/PullRequest/{pullRequest.RepositoryId}%2F{pullRequest.PullRequestId}",
+                    Attributes = new Attributes
+                    {
+                        Name = "GitHub Pull Request"
                     }
                 }
             };

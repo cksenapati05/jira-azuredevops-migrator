@@ -212,6 +212,39 @@ namespace JiraExport
             return commit;
         }
 
+        internal WiPullRequest MapPullRequest(JiraRevision jiraRevision)
+        {
+            if (jiraRevision == null)
+                throw new ArgumentNullException(nameof(jiraRevision));
+
+            if (jiraRevision.PullRequest == null)
+            {
+                return null;
+            }
+
+            var jiraPullRequest = jiraRevision.PullRequest.Value;
+            var respositoryTarget = jiraPullRequest.RepositoryId;
+
+            var respositoryOverride = _config
+                .RepositoryMap
+                .Repositories?
+                .Find(r => r.Source == respositoryTarget)?
+                .Target;
+
+            if (!string.IsNullOrEmpty(respositoryOverride))
+            {
+                respositoryTarget = respositoryOverride;
+            }
+
+            var pullRequest = new WiPullRequest()
+            {
+                PullRequestId = jiraPullRequest.PullRequestId,
+                RepositoryId = respositoryTarget,
+            };
+
+            return pullRequest;
+        }
+
         internal List<WiLink> MapLinks(JiraRevision r)
         {
             if (r == null)
@@ -336,6 +369,7 @@ namespace JiraExport
             List<WiField> fields = MapFields(r);
             List<WiLink> links = MapLinks(r);
             var commit = MapCommit(r);
+            var pullRequest = MapPullRequest(r);
 
             return new WiRevision()
             {
@@ -347,7 +381,8 @@ namespace JiraExport
                 Fields = fields,
                 Links = links,
                 AttachmentReferences = attachments.Any(),
-                Commit = commit
+                Commit = commit,
+                PullRequest = pullRequest,
             };
         }
 

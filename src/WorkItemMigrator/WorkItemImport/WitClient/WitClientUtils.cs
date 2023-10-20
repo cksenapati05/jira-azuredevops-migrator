@@ -1,4 +1,5 @@
-﻿using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
+﻿using Microsoft.TeamFoundation.SourceControl.WebApi;
+using Microsoft.TeamFoundation.WorkItemTracking.WebApi.Models;
 using Microsoft.VisualStudio.Services.WebApi;
 using Microsoft.VisualStudio.Services.WebApi.Patch;
 using Microsoft.VisualStudio.Services.WebApi.Patch.Json;
@@ -571,6 +572,42 @@ namespace WorkItemImport
             var patchDocument = new JsonPatchDocument
             {
                 JsonPatchDocUtils.CreateJsonArtifactLinkPatchOp(Operation.Add, settings.Project, rev.Commit.Repository, rev.Commit.Id),
+                JsonPatchDocUtils.CreateJsonFieldPatchOp(Operation.Add, WiFieldReference.ChangedDate, rev.Time),
+                JsonPatchDocUtils.CreateJsonFieldPatchOp(Operation.Add, WiFieldReference.ChangedBy, rev.Author)
+            };
+
+            try
+            {
+                if (wi.Id.HasValue)
+                    _witClientWrapper.UpdateWorkItem(patchDocument, wi.Id.Value);
+                else
+                    throw new MissingFieldException($"Work item ID was null: {wi.Url}");
+            }
+            catch (AggregateException ex)
+            {
+                foreach (Exception ex2 in ex.InnerExceptions)
+                {
+                    Logger.Log(LogLevel.Error, ex2.Message);
+                }
+                Logger.Log(LogLevel.Error, "Work Item " + wi.Id + " failed to save.");
+            }
+        }
+
+        public void SaveWorkItemPullRequests(WiRevision rev, WorkItem wi)
+        {
+            if (wi == null)
+            {
+                throw new ArgumentException(nameof(wi));
+            }
+
+            if (rev.PullRequest == null)
+            {
+                return;
+            }
+
+            var patchDocument = new JsonPatchDocument
+            {
+                JsonPatchDocUtils.CreateGitHubPullRequestLinkPatchOp(Operation.Add, rev.PullRequest),
                 JsonPatchDocUtils.CreateJsonFieldPatchOp(Operation.Add, WiFieldReference.ChangedDate, rev.Time),
                 JsonPatchDocUtils.CreateJsonFieldPatchOp(Operation.Add, WiFieldReference.ChangedBy, rev.Author)
             };
