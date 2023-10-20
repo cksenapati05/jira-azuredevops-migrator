@@ -76,7 +76,7 @@ namespace Common.Config
         public int SleepTimeBetweenRevisionImportMilliseconds { get; set; } = 0;
 
         [JsonProperty(PropertyName = "include-commits")]
-        public bool IncludeCommits { get; set; } = false;
+        public bool IncludeCommits { get; set; } = true;
 
         [JsonProperty(PropertyName = "include-jira-css-styles")]
         public bool IncludeJiraCssStyles { get; set; } = true;
