@@ -116,13 +116,17 @@ namespace WorkItemImport
                     }
                 }
 
-                // rev with a commit won't have meaningful information, skip saving fields
+                // rev with a commit or pullRequest won't have meaningful information, skip saving fields
                 if (rev.Commit != null)
                 {
                     if (settings.IncludeCommits)
                     {
                         _witClientUtils.SaveWorkItemArtifacts(rev, wi, settings);
                     }
+                }
+                else if (rev.PullRequest != null && settings.IncludePullRequests)
+                {
+                    _witClientUtils.SaveWorkItemPullRequests(rev, wi);
                 }
                 else
                 {

@@ -155,6 +155,43 @@ namespace JiraExport
                 }
             }
 
+            if (settings.IncludePullRequests)
+            {
+                if (settings.RepositoryMap == null)
+                {
+                    Logger.Log(LogLevel.Warning, $"Include-pullrequest is 'true' in the config, but no RepositoryMap was specified in the config. " +
+                        $"Please add a RepositoryMap in order to migrate git artifact links. Git artifacts will be skipped for now...");
+                }
+                else
+                {
+                    var pullRequests = jiraProvider.GetPullRequests(jiraItem.Id);
+                    foreach (JToken pullRequest in pullRequests)
+                    {
+                        var commitCreatedOn = pullRequest.ExValue<DateTime>("$.lastUpdate");
+                        var pullRequestAuthor = GetAuthor(pullRequest as JObject);
+                        var repositoryName = pullRequest.SelectToken("$.repositoryName").Value<string>();
+                        if (string.IsNullOrEmpty(repositoryName))
+                        {
+                            continue;
+                        }
+
+                        var hasRespositoryTarget = settings.RepositoryMap.Repositories.Exists(r => r.Source == repositoryName && !string.IsNullOrEmpty(r.Target));
+                        if (!hasRespositoryTarget)
+                        {
+                            continue;
+                        }
+
+                        var jiraPullRequest = new JiraPullRequest() {
+                            PullRequestId = pullRequest.SelectToken("$.id").Value<string>().Split('#')[1],
+                            RepositoryId = repositoryName
+                        };
+
+                        var pullRequestRevision = new JiraRevision(jiraItem) { Time = commitCreatedOn, Author = pullRequestAuthor, Fields = new Dictionary<string, object>(), PullRequest = new RevisionAction<JiraPullRequest>() { ChangeType = RevisionChangeType.Added, Value = jiraPullRequest } };
+                        listOfRevisions.Add(pullRequestRevision);
+                    }
+                }
+            }
+
             listOfRevisions.Sort();
 
             foreach (var revAndI in listOfRevisions.Select((r, i) => (r, i)))

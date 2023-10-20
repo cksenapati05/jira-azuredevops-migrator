@@ -452,5 +452,11 @@ namespace JiraExport
             var response = (JObject)_jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"/rest/dev-status/latest/issue/detail?issueId={issueId}&applicationType=GitHub&dataType=repository").Result;
             return response.SelectTokens("$.detail[*].repositories[*]").Cast<JObject>();
         }
+
+        public IEnumerable<JObject> GetPullRequests(string issueId)
+        {
+            var response = (JObject)_jiraServiceWrapper.RestClient.ExecuteRequestAsync(Method.GET, $"/rest/dev-status/latest/issue/detail?issueId={issueId}&applicationType=GitHub&dataType=branch").Result;
+            return response.SelectTokens("$.detail[*].pullRequests[*]").Cast<JObject>();
+        }
     }
 }

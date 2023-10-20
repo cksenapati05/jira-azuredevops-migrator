@@ -29,6 +29,7 @@ namespace Migration.WIContract
         public List<WiLink> Links { get; set; }
         public List<WiAttachment> Attachments { get; set; }
         public WiCommit Commit { get; set; }
+        public WiPullRequest PullRequest { get; set; }
 
         [DefaultValue(false)]
         public bool AttachmentReferences { get; set; } = false;

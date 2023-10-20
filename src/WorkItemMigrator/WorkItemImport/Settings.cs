@@ -18,5 +18,6 @@
         public string ProcessTemplate { get; internal set; }
         public bool IncludeLinkComments { get; internal set; }
         public bool IncludeCommits { get; internal set; }
+        public bool IncludePullRequests { get; internal set; }
     }
 }
