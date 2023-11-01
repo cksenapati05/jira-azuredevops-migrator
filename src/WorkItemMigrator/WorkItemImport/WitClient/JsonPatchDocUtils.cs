@@ -62,7 +62,7 @@ namespace WorkItemImport.WitClient
                     Url = $"vstfs:///GitHub/Commit/{repository}%2F{commitId}",
                     Attributes = new Attributes
                     {
-                        Name = "Fixed in Commit"
+                        Name = "GitHub Commit"
                     }
                 }
             };
